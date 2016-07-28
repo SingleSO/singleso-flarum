@@ -1,2 +1,3 @@
-# singleso-flarum
-Single Sign-On Flarum Extension
+# SingleSO Flarum
+
+Single Sign-On Flarum Extension.
