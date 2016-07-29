@@ -63,6 +63,11 @@ export default class SingleSOSettingsModal extends SettingsModal {
 			</div>,
 
 			<div className="Form-group">
+				<label>Foced Endpoint IP Address <small>(forces connecting to the endpoint at a specific IP address, only use if needed and understood)</small></label>
+				<input className="FormControl" bidi={this.setting('singleso-singleso-flarum.endpoint_ip_forced')}/>
+			</div>,
+
+			<div className="Form-group">
 				<label>Redirect URI <small>(value for SSO client)</small></label>
 				<input className="FormControl" readonly="readonly" value={authAction}/>
 			</div>,

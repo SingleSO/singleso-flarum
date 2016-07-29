@@ -23,7 +23,8 @@ class SingleSO {
 		'register_url' => true,
 		'logout_url' => false,
 		'global_cookie' => false,
-		'redirect_uri_noprotocol' => false
+		'redirect_uri_noprotocol' => false,
+		'endpoint_ip_forced' => false
 	];
 
 	// Property mappings with a conflict fallback sprintf format.
@@ -75,19 +76,38 @@ class SingleSO {
 	/**
 	 * @param string $endpoint
 	 * @param array $params
+	 * @param string|null $forceip
 	 * @return array|null
 	 */
-	public static function oauthRequest($endpoint, $params) {
+	public static function oauthRequest($endpoint, $params, $forceip = null) {
 		$result = null;
 		$userAgent = 'singleso/singleso-flarum';
 		$timeout = 30;
+		$url = $endpoint;
+		$hostname = null;
+
+		// If forcing an IP address, substitute it in URL and remember host.
+		if ($forceip) {
+			// Get the host name and replace it with the IP address.
+			$url_host = parse_url($url, PHP_URL_HOST);
+			if ($url_host) {
+				$url = implode($forceip, explode($url_host, $url, 2));
+				// Also remember the host name later.
+				$hostname = $url_host;
+			}
+		}
 
 		// Prefer cURL, as allow_url_fopen may no be enabled.
 		if (function_exists('curl_init')) {
 			$c = curl_init();
-			curl_setopt($c, CURLOPT_URL, $endpoint);
+			curl_setopt($c, CURLOPT_URL, $url);
+			if ($hostname) {
+				curl_setopt($c, CURLOPT_HTTPHEADER, [
+					'Host: ' . $hostname
+				]);
+			}
 			curl_setopt($c, CURLOPT_POSTFIELDS, http_build_query($params));
-			curl_setopt($c, CURLOPT_USERAGENT, 'singleso/singleso-flarum');
+			curl_setopt($c, CURLOPT_USERAGENT, $userAgent);
 			curl_setopt($c, CURLOPT_FOLLOWLOCATION, true);
 			curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($c, CURLOPT_POST, true);
@@ -97,19 +117,23 @@ class SingleSO {
 			$result = curl_exec($c);
 		}
 		else {
+			$headers = [
+				'Content-type: application/x-www-form-urlencoded',
+				'User-Agent: ' . $userAgent
+			];
+			if ($hostname) {
+				$headers[] = 'Host: ' . $hostname;
+			}
 			$c = stream_context_create([
 				'http' => [
 					'method' => 'POST',
-					'header' => implode("\r\n", [
-						'Content-type: application/x-www-form-urlencoded',
-						'User-Agent: ' . $userAgent
-					]) . "\r\n",
+					'header' => implode("\r\n", $headers) . "\r\n",
 					'content' => http_build_query($params),
 					'ignore_errors' => true,
 					'timeout' => $timeout
 				]
 			]);
-			$result = @file_get_contents($endpoint, false, $c);
+			$result = @file_get_contents($url, false, $c);
 		}
 
 		// If a string, decode the JSON and check for array, else null.
@@ -123,12 +147,13 @@ class SingleSO {
 	/**
 	 * @param string $endpoint
 	 * @param array $params
+	 * @param string|null $forceip
 	 * @throws SingleSOException
 	 * @return string
 	 */
-	public static function getOauthToken($endpoint, $params) {
+	public static function getOauthToken($endpoint, $params, $forceip = null) {
 		$url = $endpoint . '/token';
-		$data = static::oauthRequest($url, $params);
+		$data = static::oauthRequest($url, $params, $forceip);
 		if (!is_array($data)) {
 			throw new SingleSOException(['Invalid response for: /token']);
 		}
@@ -145,12 +170,13 @@ class SingleSO {
 	/**
 	 * @param string $endpoint
 	 * @param array $params
+	 * @param string|null $forceip
 	 * @throws SingleSOException
 	 * @return string
 	 */
-	public static function getOauthUser($endpoint, $params) {
+	public static function getOauthUser($endpoint, $params, $forceip = null) {
 		$url = $endpoint . '/user';
-		$data = static::oauthRequest($url, $params);
+		$data = static::oauthRequest($url, $params, $forceip);
 		if (!is_array($data)) {
 			throw new SingleSOException(['Invalid response for: /user']);
 		}
@@ -166,16 +192,19 @@ class SingleSO {
 	/**
 	 * @param string $endpoint
 	 * @param array $params
+	 * @param string|null $forceip
 	 * @throws SingleSOException
 	 * @return array
 	 */
-	public static function getOauthUserInfo($endpoint, $params) {
+	public static function getOauthUserInfo(
+		$endpoint, $params, $forceip = null
+	) {
 		// Use code to access auth token.
-		$token = static::getOauthToken($endpoint, $params);
+		$token = static::getOauthToken($endpoint, $params, $forceip);
 		// Then use the token to access user data.
 		return static::getOauthUser($endpoint, [
 			'access_token' => $token
-		]);
+		], $forceip);
 	}
 
 	/*

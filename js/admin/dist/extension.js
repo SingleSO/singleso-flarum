@@ -140,6 +140,20 @@ System.register('singleso/singleso-flarum/components/SingleSOSettingsModal', ['f
 							m(
 								'label',
 								null,
+								'Foced Endpoint IP Address ',
+								m(
+									'small',
+									null,
+									'(forces connecting to the endpoint at a specific IP address, only use if needed and understood)'
+								)
+							),
+							m('input', { className: 'FormControl', bidi: this.setting('singleso-singleso-flarum.endpoint_ip_forced') })
+						), m(
+							'div',
+							{ className: 'Form-group' },
+							m(
+								'label',
+								null,
 								'Redirect URI ',
 								m(
 									'small',

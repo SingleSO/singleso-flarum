@@ -393,7 +393,9 @@ class SingleSOAuthController implements ControllerInterface {
 				'client_id' => $authSettings['client_id'],
 				'client_secret' => $authSettings['client_secret'],
 				'redirect_uri' => $this->getRedirectURI()
-			]
+			],
+			$authSettings['endpoint_ip_forced'] ?
+				$authSettings['endpoint_ip_forced'] : null
 		);
 
 		// Ensure a user for the info.
