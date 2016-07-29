@@ -214,6 +214,7 @@ class SingleSO {
 	 * @return boolean
 	 */
 	public static function logoutTokenVerify($userid, $secret, $token) {
+		$userid	= (int)$userid;
 		$parts = explode('|', $token, 3);
 		$token_expires = (int)array_get($parts, 0);
 		$token_user = (int)array_get($parts, 1);
