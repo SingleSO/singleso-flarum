@@ -22,7 +22,8 @@ class SingleSO {
 		'login_url' => true,
 		'register_url' => true,
 		'logout_url' => false,
-		'global_cookie' => false
+		'global_cookie' => false,
+		'redirect_uri_noprotocol' => false
 	];
 
 	// Property mappings with a conflict fallback sprintf format.

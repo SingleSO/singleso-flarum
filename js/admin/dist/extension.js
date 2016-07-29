@@ -33,6 +33,10 @@ System.register('singleso/singleso-flarum/components/SingleSOSettingsModal', ['f
 						var authBase = app.forum.attribute('baseUrl') + app['singleso-singleso-flarum'].controller;
 						var authAction = authBase;
 						var logoutAction = authBase + '/logout';
+						var redirectUriNoprotocolOptions = {
+							'': 'Disabled',
+							'1': 'Enabled'
+						};
 						return [m(
 							'div',
 							{ className: 'Form-group' },
@@ -106,6 +110,30 @@ System.register('singleso/singleso-flarum/components/SingleSOSettingsModal', ['f
 								)
 							),
 							m('input', { className: 'FormControl', bidi: this.setting('singleso-singleso-flarum.global_cookie') })
+						), m(
+							'div',
+							{ className: 'Form-group' },
+							m(
+								'label',
+								null,
+								'No protocol in redirect ',
+								m(
+									'small',
+									null,
+									'(enable to remove http/https protocol from redirect_uri, useful for issues with mod_security)'
+								)
+							),
+							m(
+								'select',
+								{ className: 'Select-input FormControl', bidi: this.setting('singleso-singleso-flarum.redirect_uri_noprotocol') },
+								Object.keys(redirectUriNoprotocolOptions).map(function (key) {
+									return m(
+										'option',
+										{ value: key },
+										redirectUriNoprotocolOptions[key]
+									);
+								})
+							)
 						), m(
 							'div',
 							{ className: 'Form-group' },

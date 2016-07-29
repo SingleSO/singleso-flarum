@@ -15,6 +15,10 @@ export default class SingleSOSettingsModal extends SettingsModal {
 			app['singleso-singleso-flarum'].controller;
 		const authAction = authBase;
 		const logoutAction = authBase + '/logout';
+		const redirectUriNoprotocolOptions = {
+			'': 'Disabled',
+			'1': 'Enabled'
+		};
 		return [
 			<div className="Form-group">
 				<label>Client ID</label>
@@ -49,6 +53,13 @@ export default class SingleSOSettingsModal extends SettingsModal {
 			<div className="Form-group">
 				<label>Global Cookie <small>(optional, enables global auto-login)</small></label>
 				<input className="FormControl" bidi={this.setting('singleso-singleso-flarum.global_cookie')}/>
+			</div>,
+
+			<div className="Form-group">
+				<label>No protocol in redirect <small>(enable to remove http/https protocol from redirect_uri, useful for issues with mod_security)</small></label>
+				<select className="Select-input FormControl" bidi={this.setting('singleso-singleso-flarum.redirect_uri_noprotocol')}>
+					{Object.keys(redirectUriNoprotocolOptions).map(key => <option value={key}>{redirectUriNoprotocolOptions[key]}</option>)}
+				</select>
 			</div>,
 
 			<div className="Form-group">

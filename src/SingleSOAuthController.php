@@ -169,7 +169,7 @@ class SingleSOAuthController implements ControllerInterface {
 		// Create the redirect parameters.
 		$ssoParams = [
 			'client_id' => $authSettings['client_id'],
-			'redirect_uri' => $this->url->toRoute('auth.singleso'),
+			'redirect_uri' => $this->getRedirectURI(),
 			'state' => $state
 		];
 
@@ -257,7 +257,7 @@ class SingleSOAuthController implements ControllerInterface {
 
 		// Setup parameters.
 		$ssoParams = [
-			'redirect_uri' => $this->url->toRoute('auth.singleso'),
+			'redirect_uri' => $this->getRedirectURI(),
 			'client_id' => $authSettings['client_id'],
 			'scope' => 'user email profile',
 			'state' => $state
@@ -392,7 +392,7 @@ class SingleSOAuthController implements ControllerInterface {
 				'code' => $code,
 				'client_id' => $authSettings['client_id'],
 				'client_secret' => $authSettings['client_secret'],
-				'redirect_uri' => $this->url->toRoute('auth.singleso')
+				'redirect_uri' => $this->getRedirectURI()
 			]
 		);
 
@@ -477,9 +477,23 @@ class SingleSOAuthController implements ControllerInterface {
 
 	/**
 	 * @param string $path
+	 * @return string
 	 */
 	public function expandRedirect($path) {
 		return SingleSO::safePath($this->app->url(), $path);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getRedirectURI() {
+		$path = $this->url->toRoute('auth.singleso');
+		// Strip off the redirect protocol if so configured.
+		$authSettings = SingleSO::settingsAuth($this->settings, false);
+		if ($authSettings['redirect_uri_noprotocol']) {
+			$path = preg_replace('/^https?:\/\//', '', $path);
+		}
+		return $path;
 	}
 
 	/**
