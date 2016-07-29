@@ -1,0 +1,35 @@
+{
+    "name": "singleso/singleso-flarum",
+    "description": "SingleSO Flarum",
+    "keywords": [
+        "SingleSO",
+        "Single Sign-On",
+        "SSO",
+        "authentication"
+    ],
+    "homepage": "https://github.com/SingleSO",
+    "type": "flarum-extension",
+    "license": "MPL-2.0",
+    "support": {
+        "issues": "https://github.com/SingleSO/singleso-flarum/issues",
+        "source": "https://github.com/SingleSO/singleso-flarum"
+    },
+    "require": {
+        "flarum/core": "^0.1.0-beta.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "SingleSO\\Auth\\": "src/"
+        }
+    },
+    "extra": {
+        "flarum-extension": {
+            "title": "SingleSO",
+            "icon": {
+                "name": "users",
+                "backgroundColor": "#F5F5F5",
+                "color": "#222"
+            }
+        }
+    }
+}
